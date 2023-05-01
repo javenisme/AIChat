@@ -1,4 +1,4 @@
-import { IconFileExport, IconLogout, IconSettings } from '@tabler/icons-react';
+import { IconFileExport, IconMarkdown, IconLogout, IconSettings } from '@tabler/icons-react';
 import { signOut, signIn, getSession } from 'next-auth/react';
 import { useContext, useEffect, useState } from 'react';
 
@@ -48,7 +48,7 @@ export const ChatbarSettings = () => {
       setSession(session);
     })
   }, [])
-  
+
   return (
     <div className="flex flex-col items-center space-y-1 border-t border-white/20 pt-1 text-sm">
       {conversations.length > 0 ? (
@@ -65,7 +65,7 @@ export const ChatbarSettings = () => {
 
       <SidebarButton
         text={t('Export Markdown')}
-        icon={<IconFileExport size={18} />}
+        icon={<IconMarkdown size={18} />}
         onClick={() => handleExportMarkdown()}
       />
 
@@ -81,12 +81,12 @@ export const ChatbarSettings = () => {
 
       {!serverSidePluginKeysSet ? <PluginKeys /> : null}
 
-      {NEXT_PUBLIC_NEXTAUTH_ENABLED && ( !session ? 
+      {NEXT_PUBLIC_NEXTAUTH_ENABLED && (!session ?
         <SidebarButton
           text={t('Log In')}
           icon={<IconLogout size={18} />}
           onClick={() => signIn()}
-        /> : 
+        /> :
         <SidebarButton
           text={t('Log Out')}
           icon={<IconLogout size={18} />}
