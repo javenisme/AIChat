@@ -82,6 +82,9 @@ function currentDate() {
   return `${month}-${day}`;
 }
 
+export const exportMarkdown = () => {
+}
+
 export const exportData = async (storageType: StorageType) => {
   let history = await storageGetConversations(storageType);
   let folders = await storageGetFolders(storageType);
