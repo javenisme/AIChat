@@ -74,7 +74,7 @@ export const ChatbarSettings = () => {
 
       {!serverSidePluginKeysSet ? <PluginKeys /> : null}
 
-      {NEXT_PUBLIC_NEXTAUTH_ENABLED && ( session ? 
+      {NEXT_PUBLIC_NEXTAUTH_ENABLED && ( !session ? 
         <SidebarButton
           text={t('Log In')}
           icon={<IconLogout size={18} />}
