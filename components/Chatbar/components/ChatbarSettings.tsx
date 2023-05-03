@@ -1,6 +1,6 @@
 import { IconFileExport, IconLogout, IconSettings } from '@tabler/icons-react';
-import { signOut } from 'next-auth/react';
-import { useContext, useState } from 'react';
+import { signOut, signIn, getSession } from 'next-auth/react';
+import { useContext, useEffect, useState } from 'react';
 
 import { useTranslation } from 'next-i18next';
 
@@ -16,10 +16,12 @@ import { SidebarButton } from '../../Sidebar/SidebarButton';
 import ChatbarContext from '../Chatbar.context';
 import { ClearConversations } from './ClearConversations';
 import { PluginKeys } from './PluginKeys';
+import { Session } from 'next-auth';
 
 export const ChatbarSettings = () => {
   const { t } = useTranslation('sidebar');
   const [isSettingDialogOpen, setIsSettingDialog] = useState<boolean>(false);
+  const [session, setSession] = useState<Session | null>()
 
   const {
     state: {
@@ -40,6 +42,12 @@ export const ChatbarSettings = () => {
     handleApiKeyChange,
   } = useContext(ChatbarContext);
 
+  useEffect(() => {
+    getSession().then(session => {
+      setSession(session);
+    })
+  }, [])
+  
   return (
     <div className="flex flex-col items-center space-y-1 border-t border-white/20 pt-1 text-sm">
       {conversations.length > 0 ? (
@@ -66,7 +74,12 @@ export const ChatbarSettings = () => {
 
       {!serverSidePluginKeysSet ? <PluginKeys /> : null}
 
-      {NEXT_PUBLIC_NEXTAUTH_ENABLED && (
+      {NEXT_PUBLIC_NEXTAUTH_ENABLED && ( !session ? 
+        <SidebarButton
+          text={t('Log In')}
+          icon={<IconLogout size={18} />}
+          onClick={() => signIn()}
+        /> : 
         <SidebarButton
           text={t('Log Out')}
           icon={<IconLogout size={18} />}
