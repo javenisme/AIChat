@@ -5,7 +5,7 @@ import { useTranslation } from 'next-i18next';
 import { useCreateReducer } from '@/hooks/useCreateReducer';
 
 import { DEFAULT_SYSTEM_PROMPT, DEFAULT_TEMPERATURE } from '@/utils/app/const';
-import { exportData, importData } from '@/utils/app/importExport';
+import { exportData, exportMarkdown, importData } from '@/utils/app/importExport';
 import { storageDeleteConversation } from '@/utils/app/storage/conversation';
 import { storageDeleteConversations } from '@/utils/app/storage/conversations';
 import { storageDeleteFolder } from '@/utils/app/storage/folder';
@@ -17,6 +17,8 @@ import {
   deleteSelectedConversation,
   saveSelectedConversation,
 } from '@/utils/app/storage/selectedConversation';
+import { saveConversation, saveConversations } from '@/utils/app/conversation';
+import { saveFolders } from '@/utils/app/folders';
 
 import { Conversation } from '@/types/chat';
 import { LatestExportFormat, SupportedExportFormats } from '@/types/export';
@@ -113,6 +115,10 @@ export const Chatbar = () => {
 
   const handleExportData = (storageType: StorageType) => {
     exportData(storageType);
+  };
+
+  const handleExportMarkdown = () => {
+    exportMarkdown();
   };
 
   const handleImportConversations = async (data: SupportedExportFormats) => {
@@ -245,6 +251,7 @@ export const Chatbar = () => {
         handleClearConversations,
         handleImportConversations,
         handleExportData,
+        handleExportMarkdown,
         handlePluginKeyChange,
         handleClearPluginKey,
         handleApiKeyChange,

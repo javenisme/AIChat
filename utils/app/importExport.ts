@@ -1,3 +1,5 @@
+import * as Zip from 'adm-zip';
+
 import { Conversation } from '@/types/chat';
 import {
   ExportFormatV1,
@@ -75,12 +77,53 @@ export function cleanData(data: SupportedExportFormats): LatestExportFormat {
   throw new Error('Unsupported data format');
 }
 
-function currentDate() {
-  const date = new Date();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  return `${month}-${day}`;
+function createFilename(kind: string, extension: string): string {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  return `chatbot_ui_export_${year}${month}${day}_${kind}.${extension}`;
 }
+
+export const exportMarkdown = () => {
+  const conversations = JSON.parse(localStorage.getItem('conversationHistory') || []);
+  const folders = JSON.parse(localStorage.getItem('folders') || []);
+  const zip = new Zip();
+
+  // add folders as directories
+  for (const folder of folders) {
+    zip.addFile(`${folder.name}/`, null);
+  }
+
+  // Filter "chat" type folders and create an object with ids as keys and names as values
+  const chatFolderNames: { [id: string]: string } = folders
+    .filter((folder) => folder.type === "chat")
+    .reduce((accumulator, folder) => {
+      accumulator[folder.id] = folder.name;
+      return accumulator;
+    }, {});
+
+  // add conversations as Markdown files
+  for (const conversation of conversations) {
+    let markdownContent = '';
+    for (const message of conversation.messages) {
+      markdownContent += `## ${message.role.charAt(0).toUpperCase() + message.role.slice(1)}\n\n${message.content}\n\n`;
+    }
+    const directory = conversation.folderId in chatFolderNames ? chatFolderNames[conversation.folderId] + '/' : '';
+    zip.addFile(`${directory}${conversation.name}.md`, markdownContent);
+  }
+
+  const zipDownload = zip.toBuffer();
+  const url = URL.createObjectURL(new Blob([zipDownload]));
+  const link = document.createElement('a');
+  link.download = createFilename('markdown', 'zip')
+  link.href = url;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
 
 export const exportData = async (storageType: StorageType) => {
   let history = await storageGetConversations(storageType);
@@ -99,7 +142,7 @@ export const exportData = async (storageType: StorageType) => {
   });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.download = `chatbot_ui_history_${currentDate()}.json`;
+  link.download = createFilename('data', 'json')
   link.href = url;
   link.style.display = 'none';
   document.body.appendChild(link);
